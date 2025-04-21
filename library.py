@@ -473,5 +473,5 @@ customer_transformer = Pipeline(steps=[
     # Step 5: One-hot encode ISP
     ('encode_isp', CustomOHETransformer(target_column='ISP')),
 
-    ('time spent', CustomTukeyTransformer('Time Spent', 'inner'))
+    ('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
 ], verbose=True)
