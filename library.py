@@ -8,7 +8,6 @@ from sklearn.pipeline import Pipeline
 import sklearn
 sklearn.set_config(transform_output="pandas")  #says pass pandas tables through pipeline instead of numpy matrices
 
-from sklearn.base import BaseEstimator, TransformerMixin
 
 class CustomMappingTransformer(BaseEstimator, TransformerMixin):
     """
@@ -157,10 +156,6 @@ class CustomMappingTransformer(BaseEstimator, TransformerMixin):
         result: pd.DataFrame = self.transform(X)
         return result
 
-
-from sklearn.base import BaseEstimator, TransformerMixin
-import pandas as pd
-
 class CustomOHETransformer(BaseEstimator, TransformerMixin):
     """
     A transformer that performs one-hot encoding on specified columns in a DataFrame.
@@ -295,6 +290,7 @@ class CustomOHETransformer(BaseEstimator, TransformerMixin):
         # self.fit(X,y)  #commented out to avoid warning message in fit
         result: pd.DataFrame = self.transform(X)
         return result
+    
 class CustomDropColumnsTransformer(BaseEstimator, TransformerMixin):
     """
     A transformer that either drops or keeps specified columns in a DataFrame.
