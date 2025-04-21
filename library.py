@@ -445,7 +445,7 @@ titanic_transformer = Pipeline(steps=[
     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
     ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
     #add your new ohe step below
-    ('joined', CustomOHETransformer(target_column='Joined'))
+    ('joined', CustomOHETransformer(target_column='Joined')),
 
     ('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
 
