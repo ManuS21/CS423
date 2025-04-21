@@ -447,6 +447,8 @@ titanic_transformer = Pipeline(steps=[
     #add your new ohe step below
     ('joined', CustomOHETransformer(target_column='Joined'))
 
+    ('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
+
     ], verbose=True)
 
 
