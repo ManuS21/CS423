@@ -438,3 +438,37 @@ class CustomDropColumnsTransformer(BaseEstimator, TransformerMixin):
         # self.fit(X, y)  # uncomment if you want
         result = self.transform(X)
         return result
+
+
+titanic_transformer = Pipeline(steps=[
+    ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+    ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
+    #add your new ohe step below
+    ('joined', CustomOHETransformer(target_column='Joined'))
+
+    ], verbose=True)
+
+
+
+customer_transformer = Pipeline(steps=[
+    # Step 1: Drop ID and Rating columns
+    ('drop_columns', CustomDropColumnsTransformer(column_list=['ID', 'Rating'], action='drop')),
+
+    # Step 2: Map Gender values (Female → 1, Male → 0)
+    ('map_gender', CustomMappingTransformer(
+        mapping_column='Gender',
+        mapping_dict={'Female': 1, 'Male': 0}
+    )),
+
+    # Step 3: Map Experience Level values (low → 0, medium → 1, high → 2)
+    ('map_experience', CustomMappingTransformer(
+        mapping_column='Experience Level',
+        mapping_dict={'low': 0, 'medium': 1, 'high': 2}
+    )),
+
+    # Step 4: One-hot encode OS
+    ('encode_os', CustomOHETransformer(target_column='OS')),
+
+    # Step 5: One-hot encode ISP
+    ('encode_isp', CustomOHETransformer(target_column='ISP')),
+], verbose=True)
