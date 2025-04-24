@@ -447,7 +447,7 @@ titanic_transformer = Pipeline(steps=[
     #add your new ohe step below
     ('joined', CustomOHETransformer(target_column='Joined')),
 
-    ('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
+    #('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
 
     ], verbose=True)
 
@@ -475,5 +475,5 @@ customer_transformer = Pipeline(steps=[
     # Step 5: One-hot encode ISP
     ('encode_isp', CustomOHETransformer(target_column='ISP')),
 
-    ('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
+    #('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
 ], verbose=True)
