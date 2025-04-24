@@ -439,7 +439,79 @@ class CustomDropColumnsTransformer(BaseEstimator, TransformerMixin):
         # self.fit(X, y)  # uncomment if you want
         result = self.transform(X)
         return result
+        
+class CustomTukeyTransformer(BaseEstimator, TransformerMixin):
+    """
+    A transformer that applies Tukey's fences (inner or outer) to a specified column in a pandas DataFrame.
 
+    This transformer follows the scikit-learn transformer interface and can be used in a scikit-learn pipeline.
+    It clips values in the target column based on Tukey's inner or outer fences.
+
+    Parameters
+    ----------
+    target_column : Hashable
+        The name of the column to apply Tukey's fences on.
+    fence : Literal['inner', 'outer'], default='outer'
+        Determines whether to use the inner fence (1.5 * IQR) or the outer fence (3.0 * IQR).
+
+    Attributes
+    ----------
+    inner_low : Optional[float]
+        The lower bound for clipping using the inner fence (Q1 - 1.5 * IQR).
+    outer_low : Optional[float]
+        The lower bound for clipping using the outer fence (Q1 - 3.0 * IQR).
+    inner_high : Optional[float]
+        The upper bound for clipping using the inner fence (Q3 + 1.5 * IQR).
+    outer_high : Optional[float]
+        The upper bound for clipping using the outer fence (Q3 + 3.0 * IQR).
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({'values': [10, 15, 14, 20, 100, 5, 7]})
+    >>> tukey_transformer = CustomTukeyTransformer(target_column='values', fence='inner')
+    >>> transformed_df = tukey_transformer.fit_transform(df)
+    >>> transformed_df
+    """
+
+    def __init__(self, target_column, fence='outer'):
+        assert fence in ['inner', 'outer'], f'unknown fence {fence}, expected inner or outer'
+        self.target_column = target_column
+        self.fence = fence
+        self.inner_low = None
+        self.outer_low = None
+        self.inner_high = None
+        self.outer_high = None
+
+    def fit(self, X, y=None):
+        assert isinstance(X, pd.core.frame.DataFrame), f'expected Dataframe but got {type(X)} instead.'
+        assert self.target_column in X.columns.to_list(), f'TukeyTransformer: unknown column {self.target_column}'
+        assert pd.api.types.is_numeric_dtype(X[self.target_column]), f'expected int or float in column {self.target_column}'
+
+        q1 = X[self.target_column].quantile(0.25)
+        q3 = X[self.target_column].quantile(0.75)
+        iqr = q3 - q1
+
+        self.inner_low = q1 - 1.5 * iqr
+        self.outer_low = q1 - 3 * iqr
+        self.inner_high = q3 + 1.5 * iqr
+        self.outer_high = q3 + 3 * iqr
+        return self
+
+    def transform(self, X):
+        assert isinstance(X, pd.core.frame.DataFrame), f'expected Dataframe but got {type(X)} instead.'
+        assert self.target_column in X.columns.to_list(), f'TukeyTransformer: unknown column {self.target_column}'
+        assert pd.api.types.is_numeric_dtype(X[self.target_column]), f'expected int or float in column {self.target_column}'
+        if self.inner_low is None or self.outer_low is None or self.inner_high is None or self.outer_high is None:
+            raise AssertionError(f'{self.__class__.__name__}.fit has not been called.')
+
+        X_ = X.copy()
+        if self.fence == 'inner':
+            X_[self.target_column] = X_[self.target_column].clip(lower=self.inner_low, upper=self.inner_high)
+        elif self.fence == 'outer':
+            X_[self.target_column] = X_[self.target_column].clip(lower=self.outer_low, upper=self.outer_high)
+        return X_.reset_index(drop=True)
+        
 
 titanic_transformer = Pipeline(steps=[
     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
@@ -447,7 +519,7 @@ titanic_transformer = Pipeline(steps=[
     #add your new ohe step below
     ('joined', CustomOHETransformer(target_column='Joined')),
 
-    #('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
+    ('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
 
     ], verbose=True)
 
@@ -475,5 +547,5 @@ customer_transformer = Pipeline(steps=[
     # Step 5: One-hot encode ISP
     ('encode_isp', CustomOHETransformer(target_column='ISP')),
 
-    #('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
+    ('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
 ], verbose=True)
