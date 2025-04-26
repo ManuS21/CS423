@@ -511,7 +511,136 @@ class CustomTukeyTransformer(BaseEstimator, TransformerMixin):
         elif self.fence == 'outer':
             X_[self.target_column] = X_[self.target_column].clip(lower=self.outer_low, upper=self.outer_high)
         return X_.reset_index(drop=True)
-        
+
+
+class CustomRobustTransformer(BaseEstimator, TransformerMixin):
+  """Applies robust scaling to a specified column in a pandas DataFrame.
+    This transformer calculates the interquartile range (IQR) and median
+    during the `fit` method and then uses these values to scale the
+    target column in the `transform` method.
+
+    Parameters
+    ----------
+    column : str
+        The name of the column to be scaled.
+
+    Attributes
+    ----------
+    target_column : str
+        The name of the column to be scaled.
+    iqr : float
+        The interquartile range of the target column.
+    med : float
+        The median of the target column.
+  """
+
+  def __init__(self, column):
+        self.target_column = column
+
+  def fit(self, X, y=None):
+      """Calculates the IQR and median for the target column.
+      Parameters
+      ----------
+      X : pandas DataFrame
+          The input DataFrame.
+      y : None
+          Ignored. This parameter exists only for compatibility with
+          sklearn's API.
+      Returns
+      -------
+      self : object
+          Returns the transformer instance.
+      """
+      if self.target_column not in X.columns:
+          raise AssertionError(f"CustomRobustTransformer.fit unrecognizable column {self.target_column}.")
+      self.iqr = X[self.target_column].quantile(0.75) - X[self.target_column].quantile(0.25)
+      self.med = X[self.target_column].median()
+      return self
+
+  def transform(self, X):
+      """Applies robust scaling to the target column.
+      Parameters
+      ----------
+      X : pandas DataFrame
+          The input DataFrame.
+      Returns
+      -------
+      pandas DataFrame
+          The transformed DataFrame with the target column scaled.
+      """
+      if not hasattr(self, 'iqr') or not hasattr(self, 'med'):
+          raise AssertionError("NotFittedError: This CustomRobustTransformer instance is not fitted yet. Call \"fit\" with appropriate arguments before using this estimator.")
+      X_transformed = X.copy()  # Create a copy to avoid modifying the original DataFrame
+      if self.iqr != 0:  # Check if IQR is not zero to avoid division by zero
+          X_transformed[self.target_column] = (X_transformed[self.target_column] - self.med) / self.iqr
+      return X_transformed
+
+
+from sklearn.preprocessing import RobustScaler
+
+class CustomRobustTransformer_wrapped(BaseEstimator, TransformerMixin):
+    """Applies robust scaling to a specified column using sklearn's RobustScaler.
+
+    This transformer wraps the sklearn RobustScaler to apply it to a single
+    column of a pandas DataFrame. It calculates the interquartile range (IQR)
+    and median during the `fit` method and then uses these values to scale the
+    target column in the `transform` method.
+
+    Parameters
+    ----------
+    column : str
+        The name of the column to be scaled.
+
+    Attributes
+    ----------
+    target_column : str
+        The name of the column to be scaled.
+    scaler : sklearn.preprocessing.RobustScaler
+        The underlying RobustScaler instance.
+    """
+    def __init__(self, column):
+      self.target_column = column
+      self.scaler = RobustScaler()
+
+    def fit(self, X, y=None):
+        """Fits the RobustScaler to the target column.
+        Parameters
+        ----------
+        X : pandas DataFrame
+            The input DataFrame.
+        y : None
+            Ignored. This parameter exists only for compatibility with
+            sklearn's API.
+        Returns
+        -------
+        self : object
+            Returns the transformer instance.
+        """
+        if self.target_column not in X.columns:
+            raise AssertionError(f"CustomRobustTransformer_wrapped.fit unrecognizable column {self.target_column}.")
+        self.scaler.fit(X[[self.target_column]])  # Fit to the target column only
+        return self
+
+    def transform(self, X):
+        """Applies robust scaling to the target column.
+        Parameters
+        ----------
+        X : pandas DataFrame
+            The input DataFrame.
+        Returns
+        -------
+        pandas DataFrame
+            The transformed DataFrame with the target column scaled.
+        """
+        if not hasattr(self, 'scaler'):
+            raise AssertionError("NotFittedError: This CustomRobustTransformer_wrapped instance is not fitted yet. Call \"fit\" with appropriate arguments before using this estimator.")
+        X_transformed = X.copy()
+        X_transformed[self.target_column] = self.scaler.transform(X[[self.target_column]])
+        return X_transformed
+
+
+
+
 
 titanic_transformer = Pipeline(steps=[
     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
@@ -526,26 +655,33 @@ titanic_transformer = Pipeline(steps=[
 
 
 customer_transformer = Pipeline(steps=[
-    # Step 1: Drop ID and Rating columns
-    ('drop_columns', CustomDropColumnsTransformer(column_list=['ID', 'Rating'], action='drop')),
-
-    # Step 2: Map Gender values (Female → 1, Male → 0)
+    # Step 1: Map Gender values (Female → 1, Male → 0)
     ('map_gender', CustomMappingTransformer(
         mapping_column='Gender',
         mapping_dict={'Female': 1, 'Male': 0}
     )),
 
-    # Step 3: Map Experience Level values (low → 0, medium → 1, high → 2)
+    # Step 2: Map Experience Level values (low → 0, medium → 1, high → 2)
     ('map_experience', CustomMappingTransformer(
         mapping_column='Experience Level',
         mapping_dict={'low': 0, 'medium': 1, 'high': 2}
     )),
 
-    # Step 4: One-hot encode OS
-    ('encode_os', CustomOHETransformer(target_column='OS')),
+    # Step 3: Map OS values (iOS → 1, Android → 0)
+    ('map_os', CustomMappingTransformer(
+        mapping_column='OS',
+        mapping_dict={'iOS': 1, 'Android': 0}
+    )),
 
-    # Step 5: One-hot encode ISP
+    # Step 4: One-hot encode ISP
     ('encode_isp', CustomOHETransformer(target_column='ISP')),
 
-    ('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
+    # Step 5: Tukey transform 'Time Spent'
+    ('tukey_time_spent', CustomTukeyTransformer('Time Spent', 'inner')),
+
+    # Step 6: Robust transform 'Time Spent'
+    ('robust_time_spent', CustomRobustTransformer('Time Spent')),
+
+    # Step 7: Robust transform 'Age'
+    ('robust_age', CustomRobustTransformer('Age')),
 ], verbose=True)
