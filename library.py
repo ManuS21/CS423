@@ -643,14 +643,14 @@ from sklearn.preprocessing import RobustScaler
 
 
 titanic_transformer = Pipeline(steps=[
-    ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
-    ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
-    #add your new ohe step below
-    ('joined', CustomOHETransformer(target_column='Joined')),
-
-    ('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
-
-    ], verbose=True)
+    ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+    ('map_class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
+    ('ohe_joined', CustomOHETransformer(target_column='Joined')),
+    ('tukey_age', CustomTukeyTransformer(target_column='Age', fence='outer')),
+    ('tukey_fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
+    ('scale_age', CustomRobustTransformer('Age')),  #from last chapter
+    ('scale_fare', CustomRobustTransformer('Fare')), #from last chapter)
+], verbose=True)
 
 
 
