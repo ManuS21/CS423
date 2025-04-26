@@ -578,65 +578,65 @@ class CustomRobustTransformer(BaseEstimator, TransformerMixin):
 
 from sklearn.preprocessing import RobustScaler
 
-class CustomRobustTransformer_wrapped(BaseEstimator, TransformerMixin):
-    """Applies robust scaling to a specified column using sklearn's RobustScaler.
+# class CustomRobustTransformer_wrapped(BaseEstimator, TransformerMixin):
+#     """Applies robust scaling to a specified column using sklearn's RobustScaler.
 
-    This transformer wraps the sklearn RobustScaler to apply it to a single
-    column of a pandas DataFrame. It calculates the interquartile range (IQR)
-    and median during the `fit` method and then uses these values to scale the
-    target column in the `transform` method.
+#     This transformer wraps the sklearn RobustScaler to apply it to a single
+#     column of a pandas DataFrame. It calculates the interquartile range (IQR)
+#     and median during the `fit` method and then uses these values to scale the
+#     target column in the `transform` method.
 
-    Parameters
-    ----------
-    column : str
-        The name of the column to be scaled.
+#     Parameters
+#     ----------
+#     column : str
+#         The name of the column to be scaled.
 
-    Attributes
-    ----------
-    target_column : str
-        The name of the column to be scaled.
-    scaler : sklearn.preprocessing.RobustScaler
-        The underlying RobustScaler instance.
-    """
-    def __init__(self, column):
-      self.target_column = column
-      self.scaler = RobustScaler()
+#     Attributes
+#     ----------
+#     target_column : str
+#         The name of the column to be scaled.
+#     scaler : sklearn.preprocessing.RobustScaler
+#         The underlying RobustScaler instance.
+#     """
+#     def __init__(self, column):
+#       self.target_column = column
+#       self.scaler = RobustScaler()
 
-    def fit(self, X, y=None):
-        """Fits the RobustScaler to the target column.
-        Parameters
-        ----------
-        X : pandas DataFrame
-            The input DataFrame.
-        y : None
-            Ignored. This parameter exists only for compatibility with
-            sklearn's API.
-        Returns
-        -------
-        self : object
-            Returns the transformer instance.
-        """
-        if self.target_column not in X.columns:
-            raise AssertionError(f"CustomRobustTransformer_wrapped.fit unrecognizable column {self.target_column}.")
-        self.scaler.fit(X[[self.target_column]])  # Fit to the target column only
-        return self
+#     def fit(self, X, y=None):
+#         """Fits the RobustScaler to the target column.
+#         Parameters
+#         ----------
+#         X : pandas DataFrame
+#             The input DataFrame.
+#         y : None
+#             Ignored. This parameter exists only for compatibility with
+#             sklearn's API.
+#         Returns
+#         -------
+#         self : object
+#             Returns the transformer instance.
+#         """
+#         if self.target_column not in X.columns:
+#             raise AssertionError(f"CustomRobustTransformer_wrapped.fit unrecognizable column {self.target_column}.")
+#         self.scaler.fit(X[[self.target_column]])  # Fit to the target column only
+#         return self
 
-    def transform(self, X):
-        """Applies robust scaling to the target column.
-        Parameters
-        ----------
-        X : pandas DataFrame
-            The input DataFrame.
-        Returns
-        -------
-        pandas DataFrame
-            The transformed DataFrame with the target column scaled.
-        """
-        if not hasattr(self, 'scaler'):
-            raise AssertionError("NotFittedError: This CustomRobustTransformer_wrapped instance is not fitted yet. Call \"fit\" with appropriate arguments before using this estimator.")
-        X_transformed = X.copy()
-        X_transformed[self.target_column] = self.scaler.transform(X[[self.target_column]])
-        return X_transformed
+#     def transform(self, X):
+#         """Applies robust scaling to the target column.
+#         Parameters
+#         ----------
+#         X : pandas DataFrame
+#             The input DataFrame.
+#         Returns
+#         -------
+#         pandas DataFrame
+#             The transformed DataFrame with the target column scaled.
+#         """
+#         if not hasattr(self, 'scaler'):
+#             raise AssertionError("NotFittedError: This CustomRobustTransformer_wrapped instance is not fitted yet. Call \"fit\" with appropriate arguments before using this estimator.")
+#         X_transformed = X.copy()
+#         X_transformed[self.target_column] = self.scaler.transform(X[[self.target_column]])
+#         return X_transformed
 
 
 
