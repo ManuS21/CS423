@@ -641,7 +641,102 @@ class CustomRobustTransformer_wrapped(BaseEstimator, TransformerMixin):
         return X_transformed
 
 
+class CustomKNNTransformer(BaseEstimator, TransformerMixin):
+  """Imputes missing values using KNN.
 
+  This transformer wraps the KNNImputer from scikit-learn and hard-codes
+  add_indicator to be False. It also ensures that the input and output
+  are pandas DataFrames.
+
+  Parameters
+  ----------
+  n_neighbors : int, default=5
+      Number of neighboring samples to use for imputation.
+  weights : {'uniform', 'distance'}, default='uniform'
+      Weight function used in prediction. Possible values:
+      "uniform" : uniform weights. All points in each neighborhood
+      are weighted equally.
+      "distance" : weight points by the inverse of their distance.
+      in this case, closer neighbors of a query point will have a
+      greater influence than neighbors which are further away.
+  """
+  def __init__(self, n_neighbors: int = 5, weights: Literal['uniform', 'distance'] = 'uniform') -> None:
+    """
+    Initialize the CustomKNNTransformer.
+
+    Parameters
+    ----------
+    n_neighbors : int, default=5
+        Number of neighbors to use.
+
+    weights : {'uniform', 'distance'}, default='uniform'
+        Weight function to use.
+    """
+    assert isinstance(n_neighbors, int) and n_neighbors > 0, f"{self.__class__.__name__} expects n_neighbors to be a positive integer."
+    assert weights in ['uniform', 'distance'], f"{self.__class__.__name__} expects weights to be 'uniform' or 'distance'."
+
+    self.n_neighbors = n_neighbors
+    self.weights = weights
+    self.imputer = KNNImputer(n_neighbors=self.n_neighbors, weights=self.weights, add_indicator=False)
+
+  def fit(self, X: pd.DataFrame, y: Optional[Iterable] = None) -> Self:
+      """
+      Fit the KNN imputer on the input DataFrame.
+
+      Parameters
+      ----------
+      X : pandas.DataFrame
+          The input data to fit.
+
+      y : Ignored
+          Exists only for compatibility with sklearn pipelines.
+
+      Returns
+      -------
+      self : instance of CustomKNNTransformer
+          Returns self to allow method chaining.
+      """
+      assert isinstance(X, pd.DataFrame), f"{self.__class__.__name__}.fit expected DataFrame but got {type(X)} instead."
+      self.imputer.fit(X)
+      return self
+
+  def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+      """
+      Impute missing values in the input DataFrame using the fitted KNN imputer.
+
+      Parameters
+      ----------
+      X : pandas.DataFrame
+          The input data to transform.
+
+      Returns
+      -------
+      pandas.DataFrame
+          The imputed DataFrame.
+      """
+      assert isinstance(X, pd.DataFrame), f"{self.__class__.__name__}.transform expected DataFrame but got {type(X)} instead."
+      X_imputed = self.imputer.transform(X)
+      X_out = pd.DataFrame(X_imputed, columns=X.columns, index=X.index)
+      return X_out
+
+  def fit_transform(self, X: pd.DataFrame, y: Optional[Iterable] = None) -> pd.DataFrame:
+      """
+      Fit the KNN imputer and transform the input DataFrame.
+
+      Parameters
+      ----------
+      X : pandas.DataFrame
+          The input data to fit and transform.
+
+      y : Ignored
+          Exists only for compatibility with sklearn pipelines.
+
+      Returns
+      -------
+      pandas.DataFrame
+          The imputed DataFrame.
+      """
+      return self.fit(X, y).transform(X)
 
 
 titanic_transformer = Pipeline(steps=[
