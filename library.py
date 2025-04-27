@@ -7,7 +7,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 import sklearn
 import warnings
-sklearn.set_config(transform_output="pandas")  #says pass pandas tables through pipeline instead of numpy matrices
+sklearn.set_config(transform_output="pandas") #says pass pandas tables through pipeline instead of numpy matrices
+from sklearn import set_config  #add both of these to your library before you define any transformers
+set_config(transform_output="pandas")  
 
 
 class CustomMappingTransformer(BaseEstimator, TransformerMixin):
