@@ -909,12 +909,11 @@ titanic_transformer = Pipeline(steps=[
     ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
     ('map_class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
     ('ohe_joined', CustomOHETransformer(target_column='Joined')),
-    ('impute_age', SimpleImputer(strategy='median', missing_values=np.nan)),  # Add imputation for Age
     ('tukey_age', CustomTukeyTransformer(target_column='Age', fence='outer')),
-    ('impute_fare', SimpleImputer(strategy='median', missing_values=np.nan)),  # Add imputation for Fare
     ('tukey_fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
     ('scale_age', CustomRobustTransformer('Age')),
     ('scale_fare', CustomRobustTransformer('Fare')),
+    ('impute', CustomKNNTransformer(n_neighbors=5)),  # Add KNN imputation
 ], verbose=True)
 
 
