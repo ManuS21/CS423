@@ -949,3 +949,7 @@ customer_transformer = Pipeline(steps=[
     # Step 7: Robust transform 'Age'
     ('robust_age', CustomRobustTransformer('Age')),
 ], verbose=True)
+
+
+titanic_variance_based_split = 107
+customer_variance_based_split = 113
