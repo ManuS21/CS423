@@ -537,7 +537,7 @@ class CustomRobustTransformer(BaseEstimator, TransformerMixin):
   """
 
   def __init__(self, column):
-        self.target_column = column
+        self.target_column = target_column
 
   def fit(self, X, y=None):
       """Calculates the IQR and median for the target column.
