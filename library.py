@@ -908,12 +908,12 @@ def find_random_state(
 titanic_transformer = Pipeline(steps=[
     ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
     ('map_class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
-    ('ohe_joined', CustomOHETransformer(target_column='Joined')),
+    ('target_joined', CustomTargetTransformer(col='Joined', smoothing=10)),  # Use Target Transformer instead of OHE
     ('tukey_age', CustomTukeyTransformer(target_column='Age', fence='outer')),
     ('tukey_fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
     ('scale_age', CustomRobustTransformer('Age')),
     ('scale_fare', CustomRobustTransformer('Fare')),
-    ('impute', CustomKNNTransformer(n_neighbors=5)),  # Add KNN imputation
+    ('impute', CustomKNNTransformer(n_neighbors=5)),
 ], verbose=True)
 
 
