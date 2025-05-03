@@ -523,7 +523,7 @@ class CustomRobustTransformer(BaseEstimator, TransformerMixin):
 
     Parameters
     ----------
-    column : str
+    target_column : str
         The name of the column to be scaled.
 
     Attributes
@@ -536,7 +536,7 @@ class CustomRobustTransformer(BaseEstimator, TransformerMixin):
         The median of the target column.
   """
 
-  def __init__(self, column):
+  def __init__(self, target_column):
         self.target_column = target_column
 
   def fit(self, X, y=None):
@@ -576,7 +576,6 @@ class CustomRobustTransformer(BaseEstimator, TransformerMixin):
       if self.iqr != 0:  # Check if IQR is not zero to avoid division by zero
           X_transformed[self.target_column] = (X_transformed[self.target_column] - self.med) / self.iqr
       return X_transformed
-
 
 from sklearn.preprocessing import RobustScaler
 
