@@ -11,6 +11,9 @@ sklearn.set_config(transform_output="pandas") #says pass pandas tables through p
 from sklearn import set_config  #add both of these to your library before you define any transformers
 set_config(transform_output="pandas")
 
+titanic_variance_based_split = 107
+customer_variance_based_split = 113
+
 
 from sklearn.impute import KNNImputer
 
@@ -951,5 +954,3 @@ customer_transformer = Pipeline(steps=[
 ], verbose=True)
 
 
-titanic_variance_based_split = 107
-customer_variance_based_split = 113
