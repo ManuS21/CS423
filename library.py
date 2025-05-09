@@ -782,7 +782,7 @@ class CustomTargetTransformer(BaseEstimator, TransformerMixin):
         #Create new df with just col and target - enables use of pandas methods below
         X_ = X[[self.col]]
         target = self.col+'_target_'
-        X_[target] = y
+        X_.loc[:, target] = y
 
         # Calculate global mean
         self.global_mean_ = X_[target].mean()
