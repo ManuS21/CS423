@@ -929,9 +929,9 @@ customer_transformer = Pipeline(steps=[
     ('target_isp', CustomTargetTransformer(col='ISP')),
     ('map_level', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high':2})),
     ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
-    ('tukey_age', CustomTukeyTransformer('Age', 'inner')),  #from chapter 4
-    ('tukey_time_spent', CustomTukeyTransformer('Time Spent', 'inner')),  #from chapter 4
-    ('scale_age', CustomRobustTransformer(target_column='Age')), #from 5
-    ('scale_time_spent', CustomRobustTransformer(target_column='Time Spent')), #from 5
+    ('tukey_age', CustomTukeyTransformer('Age', 'inner')),
+    ('tukey_time_spent', CustomTukeyTransformer('Time Spent', 'inner')),
+    ('scale_age', CustomRobustTransformer(target_column='Age')),
+    ('scale_time_spent', CustomRobustTransformer(target_column='Time Spent')),
     ('impute', CustomKNNTransformer(n_neighbors=5)),
-    ], verbose=True)
+], verbose=True)
