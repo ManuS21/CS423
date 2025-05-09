@@ -779,8 +779,8 @@ class CustomTargetTransformer(BaseEstimator, TransformerMixin):
         assert isinstance(y, Iterable), f'{self.__class__.__name__}.fit expected Iterable but got {type(y)} instead.'
         assert len(X) == len(y), f'{self.__class__.__name__}.fit X and y must be same length but got {len(X)} and {len(y)} instead.'
 
-        #Create new df with just col and target - enables use of pandas methods below
-        X_ = X[[self.col]]
+        # Create new df with just col and target - make a copy to avoid warnings
+        X_ = X[[self.col]].copy()  # Added .copy() here
         target = self.col+'_target_'
         X_.loc[:, target] = y
 
