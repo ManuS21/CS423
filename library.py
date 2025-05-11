@@ -951,7 +951,7 @@ customer_transformer = Pipeline(steps=[
         ('scale_time_spent', CustomRobustTransformer('Time Spent')),
         # Modified KNN imputer with different parameters
         ('impute', CustomKNNTransformer(n_neighbors=3, weights='distance')),  # Try different parameters
-    ], verbose=True
+    ], verbose=True)
 
 
 def dataset_setup(original_table, label_column_name: str, the_transformer, rs, ts=.2):
