@@ -926,17 +926,32 @@ titanic_transformer = Pipeline(steps=[
 
 
 
+# customer_transformer = Pipeline(steps=[
+#     ('map_os', CustomMappingTransformer('OS', {'Android': 0, 'iOS': 1})),
+#     ('target_isp', CustomTargetTransformer(col='ISP')),
+#     ('map_level', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high':2})),
+#     ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+#     ('tukey_age', CustomTukeyTransformer('Age', 'inner')),  
+#     ('tukey_time_spent', CustomTukeyTransformer('Time Spent', 'inner')),  
+#     ('scale_age', CustomRobustTransformer(target_column='Age')), 
+#     ('scale_time_spent', CustomRobustTransformer(target_column='Time Spent')), 
+#     ('impute', CustomKNNTransformer(n_neighbors=5)),
+# ], verbose=True)
+
+
+
 customer_transformer = Pipeline(steps=[
-    ('map_os', CustomMappingTransformer('OS', {'Android': 0, 'iOS': 1})),
-    ('target_isp', CustomTargetTransformer(col='ISP')),
-    ('map_level', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high':2})),
-    ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
-    ('tukey_age', CustomTukeyTransformer('Age', 'inner')),  
-    ('tukey_time_spent', CustomTukeyTransformer('Time Spent', 'inner')),  
-    ('scale_age', CustomRobustTransformer(target_column='Age')), 
-    ('scale_time_spent', CustomRobustTransformer(target_column='Time Spent')), 
-    ('impute', CustomKNNTransformer(n_neighbors=5)),
-], verbose=True)
+        ('map_os', CustomMappingTransformer('OS', {'Android': 0, 'iOS': 1})),
+        ('target_isp', CustomTargetTransformer(col='ISP')),
+        ('map_level', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high': 2})),
+        ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+        ('tukey_age', CustomTukeyTransformer('Age', 'inner')),
+        ('tukey_time_spent', CustomTukeyTransformer('Time Spent', 'inner')),
+        ('scale_age', CustomRobustTransformer('Age')),
+        ('scale_time_spent', CustomRobustTransformer('Time Spent')),
+        # Modified KNN imputer with different parameters
+        ('impute', CustomKNNTransformer(n_neighbors=3, weights='distance')),  # Try different parameters
+    ], verbose=True
 
 
 def dataset_setup(original_table, label_column_name: str, the_transformer, rs, ts=.2):
