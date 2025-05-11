@@ -911,6 +911,8 @@ def find_random_state(
     return rs_value, Var
 
 
+
+
 titanic_transformer = Pipeline(steps=[
     ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
     ('map_class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
@@ -935,3 +937,56 @@ customer_transformer = Pipeline(steps=[
     ('scale_time_spent', CustomRobustTransformer(target_column='Time Spent')), 
     ('impute', CustomKNNTransformer(n_neighbors=5)),
 ], verbose=True)
+
+
+def dataset_setup(original_table, label_column_name: str, the_transformer, rs, ts=.2):
+    """
+    Set up datasets for machine learning by splitting, transforming, and converting to numpy.
+
+    Parameters:
+    -----------
+    original_table : pandas.DataFrame
+        The original dataset that includes the label column
+    label_column_name : str
+        The name of the column containing the target labels
+    the_transformer : sklearn transformer
+        The transformer to apply to the features
+    rs : int
+        Random state for train-test split
+    ts : float, default=0.2
+        Test size for train-test split
+
+    Returns:
+    --------
+    tuple of numpy arrays:
+        x_train_numpy, x_test_numpy, y_train_numpy, y_test_numpy
+    """
+    # Split into features and labels
+    features = original_table.drop(columns=label_column_name)
+    labels = original_table[label_column_name].to_list()
+
+    # Perform train-test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, labels, test_size=ts, shuffle=True,
+        random_state=rs, stratify=labels
+    )
+
+    # Transform the data
+    X_train_transformed = the_transformer.fit_transform(X_train, y_train)
+    X_test_transformed = the_transformer.transform(X_test)
+
+    # Convert to numpy arrays
+    X_train_numpy = X_train_transformed.to_numpy()
+    X_test_numpy = X_test_transformed.to_numpy()
+    y_train_numpy = np.array(y_train)
+    y_test_numpy = np.array(y_test)
+
+    return X_train_numpy, X_test_numpy, y_train_numpy, y_test_numpy
+
+
+def titanic_setup(titanic_table, transformer=titanic_transformer, rs=titanic_variance_based_split, ts=.2):
+  return dataset_setup(titanic_table, 'Survived', transformer, rs=rs, ts=ts)
+
+
+def customer_setup(customer_table, transformer=customer_transformer, rs=customer_variance_based_split, ts=.2):
+  return dataset_setup(customer_table, 'Rating', transformer, rs=rs, ts=ts)
