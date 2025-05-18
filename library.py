@@ -13,6 +13,8 @@ set_config(transform_output="pandas")
 from sklearn.metrics import f1_score 
 from sklearn.neighbors import KNeighborsClassifier  
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, roc_auc_score  #add to your library along with all these functions
+
 
 
 
@@ -989,9 +991,35 @@ def dataset_setup(original_table, label_column_name: str, the_transformer, rs, t
     return X_train_numpy, X_test_numpy, y_train_numpy, y_test_numpy
 
 
+
 def titanic_setup(titanic_table, transformer=titanic_transformer, rs=titanic_variance_based_split, ts=.2):
   return dataset_setup(titanic_table, 'Survived', transformer, rs=rs, ts=ts)
 
 
 def customer_setup(customer_table, transformer=customer_transformer, rs=customer_variance_based_split, ts=.2):
   return dataset_setup(customer_table, 'Rating', transformer, rs=rs, ts=ts)
+
+
+
+
+
+def threshold_results(thresh_list, actuals, predicted):
+  result_df = pd.DataFrame(columns=['threshold', 'precision', 'recall', 'f1', 'accuracy', 'auc'])
+  for t in thresh_list:
+    yhat = [1 if v >=t else 0 for v in predicted]
+    precision = precision_score(actuals, yhat, zero_division=0)
+    recall = recall_score(actuals, yhat, zero_division=0)
+    f1 = f1_score(actuals, yhat)
+    accuracy = accuracy_score(actuals, yhat)
+    auc = roc_auc_score(actuals, predicted)
+    result_df.loc[len(result_df)] = {'threshold': t, 'precision': precision, 'recall': recall, 'f1': f1, 'auc': auc, 'accuracy': accuracy}
+
+  result_df = result_df.round(2)
+  headers = {
+      "selector": "th:not(.index_name)",
+      "props": "background-color: #800000; color: white; text-align: center"
+  }
+  properties = {"border": "1px solid black", "width": "65px", "text-align": "center"}
+
+  fancy_df = result_df.style.highlight_max(color='pink', axis=0).format(precision=2).set_properties(**properties).set_table_styles([headers])
+  return (result_df, fancy_df)
