@@ -15,7 +15,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, roc_auc_score  #add to your library along with all these functions
 from sklearn.model_selection import ParameterGrid
-
+from sklearn.model_selection import HalvingGridSearchCV
 
 
 titanic_variance_based_split = 107
