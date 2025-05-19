@@ -1035,8 +1035,8 @@ def halving_search(model, grid, x_train, y_train, factor=2, min_resources="exhau
     cv=5, random_state=1234,
     refit=True,
 )
-    grid_result = halving_cv.fit(x_train, y_train)
-    return grid_result
+grid_result = halving_cv.fit(x_train, y_train)
+return grid_result
 
 
 def sort_grid(grid):
