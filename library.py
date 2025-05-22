@@ -1026,7 +1026,7 @@ def threshold_results(thresh_list, actuals, predicted):
   return (result_df, fancy_df)
 
 
-def halving_search(model, grid, x_train, y_train, factor=2, min_resources="exhaust", scoring='roc_auc'):
+def halving_search(model, grid, x_train, y_train, factor=3, min_resources="exhaust", scoring='roc_auc'):
     halving_cv = HalvingGridSearchCV(
         model, grid,
         scoring = scoring,
