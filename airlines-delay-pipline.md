@@ -1,7 +1,13 @@
 Airlines Data Pipeline Documentation
 Pipeline Overview
 This pipeline preprocesses the Airlines dataset to prepare it for machine learning modeling. It handles high-cardinality categorical encoding through target encoding, feature scaling for numerical variables, and missing value imputation to predict flight delays.
+
+
+
 <img width="663" alt="Screenshot 2025-06-10 at 10 58 04 AM" src="https://github.com/user-attachments/assets/7c8a63ec-1f3b-432e-ab62-49e3c9fdbbe3" />
+
+
+
 
 Step-by-Step Design Choices
 1. Airline Target Encoding (target_airline)
